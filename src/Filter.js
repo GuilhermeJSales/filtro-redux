@@ -1,16 +1,31 @@
+import { useEffect } from "react";
 import { useState } from "react"
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { changeFilters, selectUniqueColors } from "./store/products";
 
-const selectUniqueColors = ({products}) => [...new Set(products.data.map(({color}) => color))];
+
 
 
 
 export const Filter = () => {
-  // const colors = ['azul', 'rosa', 'preta']
   const colors = useSelector(selectUniqueColors)
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [selectedColors, setSelectedColors] = useState([]);
+  const dispatch = useDispatch();
+
+  useEffect(() => { 
+    dispatch(changeFilters({name: 'colors', value:selectedColors}))
+  },[selectedColors, dispatch])
+
+
+
+  useEffect(() => { 
+    dispatch(changeFilters({name: 'prices', value: {
+      min:Number(minPrice),
+      max:Number(maxPrice)
+    }}))
+  },[minPrice, maxPrice, dispatch])
 
   function handleChange({target}) {
     if(target.checked){
@@ -26,14 +41,13 @@ export const Filter = () => {
 
   return (
     <div>
-      <p>{selectedColors}</p>
       <input type="number" value={minPrice} onChange={({target}) => setMinPrice(target.value)} placeholder="Min"/>
       <input type="number" value={maxPrice} onChange={({target}) => setMaxPrice(target.value)} placeholder="Max"/>
 
       {colors.map((color) => 
       <label key={color}>
         <input 
-        type="checkbox" 
+        type="checkbox"
         value={color}
         onChange={handleChange}
         checked={handleChecked(color)}
